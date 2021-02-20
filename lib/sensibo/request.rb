@@ -8,30 +8,30 @@ class Sensibo
         payload_to_snake(connection.get(url(path, query)).body.fetch('result'))
       end
 
-      def post(path, bodyData = {}, query: {})
-        send(:post, path, query, bodyData)
+      def post(path, bodyData = {})
+        send(:post, path, bodyData)
       end
 
-      def patch(path, bodyData = {}, query: {})
-        send(:patch, path, query, bodyData)
+      def patch(path, bodyData = {})
+        send(:patch, path, bodyData)
       end
 
-      def put(path, bodyData = {}, query: {})
-        send(:put, path, query, bodyData)
+      def put(path, bodyData = {})
+        send(:put, path, bodyData)
       end
 
-      def delete(path, bodyData = {}, query: {})
-        send(:delete, path, query, bodyData)
+      def delete(path, bodyData = {})
+        send(:delete, path, bodyData)
       end
 
       private
 
-      def send(method, path, query = {}, bodyData = {})
+      def send(method, path, bodyData = {})
         payload_to_snake(
           connection
             .send(
               method,
-              url(path, query),
+              url(path),
               JSON.dump(payload_to_camel(bodyData)),
               'Content-Type' => 'application/json',
             )
