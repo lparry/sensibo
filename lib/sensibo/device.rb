@@ -13,7 +13,7 @@ class Sensibo
     end
 
     def state
-      get("pods/#{id}/acStates", { limit: 1 })
+      get("pods/#{id}/acStates", limit: 1)
         .first
         .fetch(:ac_state)
         .without(:timestamp)
@@ -21,25 +21,25 @@ class Sensibo
     end
 
     def switch_off
-      patch("pods/#{id}/acStates/on", {}, { new_value: false }).tap do |x|
+      patch("pods/#{id}/acStates/on", new_value: false).tap do |x|
         metadata[:ac_state] = metadata.fetch(:ac_state).merge(x.fetch(:ac_state))
       end
     end
 
     def switch_on
-      patch("pods/#{id}/acStates/on", {}, { new_value: true }).tap do |x|
+      patch("pods/#{id}/acStates/on", new_value: true).tap do |x|
         metadata[:ac_state] = metadata.fetch(:ac_state).merge(x.fetch(:ac_state))
       end
     end
 
     def climate_react_on
-      put("pods/#{id}/smartmode", {}, { enabled: true }).tap do |x|
+      put("pods/#{id}/smartmode", enabled: true).tap do |x|
         metadata[:smart_mode] = metadata.fetch(:smart_mode).merge(x)
       end
     end
 
     def climate_react_off
-      put("pods/#{id}/smartmode", {}, { enabled: false }).tap do |x|
+      put("pods/#{id}/smartmode", enabled: false).tap do |x|
         metadata[:smart_mode] = metadata.fetch(:smart_mode).merge(x)
       end
     end
@@ -51,7 +51,7 @@ class Sensibo
     end
 
     def climate_react_update_settings(args)
-      post("pods/#{id}/smartmode", {}, climate_react_settings.merge(args)).tap do |x|
+      post("pods/#{id}/smartmode", climate_react_settings.merge(args)).tap do |x|
         metadata[:smart_mode] = metadata.fetch(:smart_mode).merge(x)
       end
     end

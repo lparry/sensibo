@@ -4,34 +4,34 @@ require 'faraday_middleware'
 class Sensibo
   class Request
     class << self
-      def get(path, queryParams = {})
-        payload_to_snake(connection.get(url(path, queryParams)).body.fetch('result'))
+      def get(path, query = {})
+        payload_to_snake(connection.get(url(path, query)).body.fetch('result'))
       end
 
-      def post(path, queryParams = {}, bodyData = {})
-        send(:post, path, queryParams, bodyData)
+      def post(path, bodyData = {}, query: {})
+        send(:post, path, query, bodyData)
       end
 
-      def patch(path, queryParams = {}, bodyData = {})
-        send(:patch, path, queryParams, bodyData)
+      def patch(path, bodyData = {}, query: {})
+        send(:patch, path, query, bodyData)
       end
 
-      def put(path, queryParams = {}, bodyData = {})
-        send(:put, path, queryParams, bodyData)
+      def put(path, bodyData = {}, query: {})
+        send(:put, path, query, bodyData)
       end
 
-      def delete(path, queryParams = {}, bodyData = {})
-        send(:delete, path, queryParams, bodyData)
+      def delete(path, bodyData = {}, query: {})
+        send(:delete, path, query, bodyData)
       end
 
       private
 
-      def send(method, path, queryParams = {}, bodyData = {})
+      def send(method, path, query = {}, bodyData = {})
         payload_to_snake(
           connection
             .send(
               method,
-              url(path, queryParams),
+              url(path, query),
               JSON.dump(payload_to_camel(bodyData)),
               'Content-Type' => 'application/json',
             )
