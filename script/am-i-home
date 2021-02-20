@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+if [[ "$(ping -W10 -c1 192.168.20.201 > /dev/null|| ping -W10 -c1 192.168.20.204 > /dev/null && echo "online")" == "online" ]]; then
+  date +%s > /tmp/last-seen
+fi
+
+if [[ $(expr "$(date +%s)" - "$(command cat /tmp/last-seen)") -lt 600 ]]; then
+  echo "home" > /tmp/home-status
+else
+  echo "away" > /tmp/home-status
+fi
