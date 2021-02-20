@@ -5,7 +5,7 @@ class Sensibo
   class Request
     class << self
       def get(path, queryParams = {})
-        connection.get(url(path, queryParams)).body.fetch('result')
+        payload_to_snake(connection.get(url(path, queryParams)).body.fetch('result'))
       end
 
       def post(path, queryParams = {}, bodyData = {})
@@ -27,15 +27,17 @@ class Sensibo
       private
 
       def send(method, path, queryParams = {}, bodyData = {})
-        connection
-          .send(
-            method,
-            url(path, queryParams),
-            JSON.dump(bodyData),
-            'Content-Type' => 'application/json',
-          )
-          .body
-          .fetch('result')
+        payload_to_snake(
+          connection
+            .send(
+              method,
+              url(path, queryParams),
+              JSON.dump(payload_to_camel(bodyData)),
+              'Content-Type' => 'application/json',
+            )
+            .body
+            .fetch('result'),
+        )
       end
 
       def connection
@@ -51,12 +53,23 @@ class Sensibo
         ENV['SENSIBO_API_KEY']
       end
 
-      def url(path, body = {})
-        "#{File.join(url_base, path)}?#{URI.encode_www_form({ apiKey: api_key }.merge(body))}"
+      def url(path, params = {})
+        query = payload_to_camel({ apiKey: api_key }.merge(params))
+        "#{File.join(url_base, path)}?#{URI.encode_www_form(query)}"
       end
 
       def url_base
         '/api/v2'
+      end
+
+      def payload_to_camel(payload)
+        return payload.map { |x| payload_to_camel(x) } if payload.is_a?(Array)
+        payload.deep_transform_keys { |key| key.to_s.camelize(:lower) }
+      end
+
+      def payload_to_snake(payload)
+        return payload.map { |x| payload_to_snake(x) } if payload.is_a?(Array)
+        payload.deep_transform_keys { |key| key.to_s.underscore.to_sym }
       end
     end
   end

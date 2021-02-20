@@ -5,17 +5,19 @@ class Sensibo
     delegate :get, :post, :put, :patch, to: Sensibo::Request
 
     def initialize(metadata)
-      @id = metadata.fetch('id')
-      @name = metadata.fetch('room').fetch('name')
-      @metadata = metadata
+      store_state(metadata)
+    end
+
+    def state
+      get("pods/#{id}/acStates", { limit: 1 }).first[:ac_state].without(:timestamp)
     end
 
     def switch_off
-      patch("pods/#{id}/acStates/on", {}, { newValue: false })
+      patch("pods/#{id}/acStates/on", {}, { new_value: false })
     end
 
     def switch_on
-      patch("pods/#{id}/acStates/on", {}, { newValue: true })
+      patch("pods/#{id}/acStates/on", {}, { new_value: true })
     end
 
     def climate_react_on
@@ -35,7 +37,15 @@ class Sensibo
     end
 
     def refresh
-      get("pods/#{id}", fields: '*')
+      store_state(get("pods/#{id}", fields: '*'))
+    end
+
+    private
+
+    def store_state(metadata)
+      @id = metadata.fetch(:id)
+      @name = metadata.fetch(:room).fetch(:name)
+      @metadata = metadata
     end
   end
 end
